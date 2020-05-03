@@ -25,8 +25,9 @@ erlang which make this possible:
   "active" mode by default. When an "active" socket receives a message, it
   marshals that message into the owning process's mailbox. Our GenServer need
   only implement a
-  `handle_info({:udp, socket, ip, port, binary_or_list_packet})` <<handle_info>>
-  callback to receive data over the network. This is very convenient.
+  `handle_info({:udp, socket, ip, port, binary_or_list_packet}, state)`
+  <<handle_info>> callback to receive data over the network. This is very
+  convenient.
 * Elixir and erlang implement strings as binaries, which are also bitstrings.
   Elixir and erlang also support high-level pattern-match syntax <<binaries>>
   for operating on bitstrings, which has the convenient effect that
