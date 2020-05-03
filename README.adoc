@@ -1,0 +1,45 @@
+= GossipCluster
+
+For Fun And Practice, implement a UDP-multicast clustering mechanism in elixir.
+
+Following in the footsteps of bitwalker's _libcluster_ <<libcluster>> library,
+this library uses a gossip (epidemic) protocol <<gossip>> to locate and connect
+to other nodes on the network.
+
+Each node starts a UDP socket subscribed to a multicast address. Each node both
+sends "heartbeats" to that address and listens for heartbeats from other nodes
+on that address. When a node sends a message out, it encodes its own location in
+the packet. When a node receives a message, it decodes the peer node's location
+and attempts to connect via `Node.connect/1`.
+
+This is surprisingly easy to achieve in Elixir. A naive implementation fits
+within 60 lines of code. There are many quality-of-life features of elixir and
+erlang which make this possible:
+
+* Elixir and Erlang define a GenServer ("generic server") module which we can
+  use to define a wide variety of server processes. These define high-level
+  APIs frequently driven with pattern-match syntax for handling arbitrary RPC
+  messages, where messages are structured data in the process's "mailbox", a
+  stack-like structure.
+* When we start a UDP socket with `:gen_udp.open/1` <<gen_udp>>, it starts in
+  "active" mode by default. When an "active" socket receives a message, it
+  marshals that message into the owning process's mailbox. Our GenServer need
+  only implement a
+  `handle_info({:udp, socket, ip, port, binary_or_list_packet})` <<handle_info>>
+  callback to receive data over the network. This is very convenient.
+* Elixir and erlang implement strings as binaries, which are also bitstrings.
+  Elixir and erlang also support high-level pattern-match syntax <<binaries>>
+  for operating on bitstrings, which has the convenient effect that
+  `<<"heartbeat::" <> node_name::binary>> = packet` is both a guard clause to
+  only handle UDP packets starting with a "heartbeat::" UTF-8 sentinel and a
+  pattern to extract the binary-encoded node name from the packet. Once we have
+  the encoded name, we then parse the binary with
+  `:erlang.bytes_to_term(node_name)` and simply `Node.connect/1` to the result!
+
+[bibliography]
+== References
+- [[[libcluster, 1]]] https://github.com/bitwalker/libcluster
+- [[[gossip, 2]]] https://en.wikipedia.org/wiki/Gossip_protocol
+- [[[gen_udp, 3]]] http://erlang.org/doc/man/gen_udp.html#open-1
+- [[[handle_info, 4]]] https://hexdocs.pm/elixir/GenServer.html#c:handle_info/2
+- [[[binaries, 5]]] https://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html
