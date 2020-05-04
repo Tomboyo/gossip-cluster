@@ -1,0 +1,7 @@
+_build
+.formatter.exs
+.gitignore
+.git
+README.adoc
+.dockerignore
+Dockerfile
