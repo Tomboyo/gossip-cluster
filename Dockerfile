@@ -3,7 +3,7 @@ ENV MIX_ENV=prod
 RUN mkdir /app
 WORKDIR /app
 COPY . .
-RUN mix release
+RUN mix release gossip_cluster
 
 FROM buildpack-deps:buster
 ENV LANG=C.UTF-8
