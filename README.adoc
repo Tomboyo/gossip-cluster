@@ -53,7 +53,7 @@ On the other computer (note the different release name):
 [source,bash]
 ----
 podman build --tag gossip .
-podman run --het=host -e RELEASE_NAME=b gossip
+podman run --net=host -e RELEASE_NAME=b gossip
 ----
 
 You should see a NODEUP messages within a few seconds on both computers as they
