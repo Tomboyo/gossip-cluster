@@ -9,4 +9,5 @@ FROM buildpack-deps:buster
 ENV LANG=C.UTF-8
 RUN mkdir /app
 COPY --from=builder /app/_build /app
+RUN chmod -R +x /app
 CMD ["/app/prod/rel/gossip_cluster/bin/gossip_cluster", "start"]
