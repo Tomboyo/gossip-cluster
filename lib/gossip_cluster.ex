@@ -9,7 +9,7 @@ defmodule GossipCluster do
   @impl true
   def init(options) do
     port = Keyword.get(options, :port, 8888)
-    mcast_address = Keyword.get(options, :mcast_address, {233, 252, 1, 0})
+    mcast_address = Keyword.get(options, :mcast_address, {233, 252, 1, 32})
     mcast_interface = Keyword.get(options, :mcast_interface, {0, 0, 0, 0})
     mcast_ttl = Keyword.get(options, :mcast_ttl, 1)
 

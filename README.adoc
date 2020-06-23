@@ -12,6 +12,11 @@ on that address. When a node sends a message out, it encodes its own location in
 the packet. When a node receives a message, it decodes the peer node's location
 and attempts to connect via `Node.connect/1`.
 
+By default, each node listens to an unassigned multicast address in the
+ADHOC-III block <<iana>>. This should be of little consequence in the scope of
+this exercise, but in any case is unlikely to collide with other applications
+running on the network.
+
 This is surprisingly easy to achieve in Elixir. A naive implementation fits
 within 60 lines of code. There are many quality-of-life features of elixir and
 erlang which make this possible:
@@ -39,6 +44,54 @@ erlang which make this possible:
 
 == Run It
 
+This exercise is shipped with a Dockerfile, so very little work is required to
+run. However, special consideration needs to be made if we wish to launch this
+application on just on computer, since both gossip-cluster nodes will attempt to
+listen on the same socket; only one can succeed. One way around this is to use
+minishift, which allows two or more pods to communicate on the same multicast
+socket. Another, of course, is to start another laptop. Instructions for both
+methods follow.
+
+=== Minishift
+
+If you have minishift <<minishift>> installed, the following commands are
+sufficient two start two pods gossipping over multicast:
+
+[source, bash]
+----
+minishift start
+eval $(minishift oc-env)
+oc new-app . --name=gossip
+oc scale --replicas=2 dc gossip
+----
+
+To confirm that the nodes are gossipping successfully, use `oc get pods` to
+display the names of available pods and `oc logs -f $podname` to stream their
+logs. For example:
+
+[source, bash]
+----
+$ oc get pods
+NAME             READY     STATUS      RESTARTS   AGE
+gossip-1-6msjw   1/1       Running     0          7s
+gossip-1-build   0/1       Completed   0          22s
+gossip-1-fgp9d   1/1       Running     0          7s
+
+$ oc logs -f gossip-1-6msjw
+00:19:46.712 [debug] Received hearbeat from :"gossip_cluster@gossip-1-6msjw"
+00:19:47.039 [debug] Received hearbeat from :"gossip_cluster@gossip-1-fgp9d"
+00:19:47.717 [debug] Received hearbeat from :"gossip_cluster@gossip-1-6msjw"
+00:19:48.040 [debug] Received hearbeat from :"gossip_cluster@gossip-1-fgp9d"
+...
+----
+
+=== Two Computers
+
+==== Podman or Docker
+
+NOTE: These instructions use podman for building and running the container, but
+docker and podman support the same commands, so either should work.
+
 Suppose you have two computers on the same network. On one computer:
 
 [source,bash]
@@ -61,9 +114,9 @@ locate one another over multicast. Failure to assign each node a different
 `RELEASE_NAME` may result in an error like
 `** Cannot get connection id for node name@host`.
 
-If you do not want to fiddle with podman (or docker) and have elixir installed,
-you can run this on both computers (setting the value of `--sname` differently
-for each computer):
+==== Iex
+If both computers have elixir installed, you can run the following command on
+each (setting the value of `--sname` differently for each computer):
 
 [source,bash]
 ----
@@ -77,3 +130,5 @@ iex --sname a --cookie cookie -S mix
 - [[[gen_udp, 3]]] http://erlang.org/doc/man/gen_udp.html#open-1
 - [[[handle_info, 4]]] https://hexdocs.pm/elixir/GenServer.html#c:handle_info/2
 - [[[binaries, 5]]] https://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html
+- [[[iana, 6]]] https://www.iana.org/assignments/multicast-addresses/multicast-addresses.xhtml#multicast-addresses-11
+- [[[minishift, 7]]] https://www.okd.io/minishift/
