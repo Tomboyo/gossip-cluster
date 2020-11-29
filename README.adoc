@@ -46,7 +46,7 @@ erlang which make this possible:
 
 This exercise is shipped with a Dockerfile, so very little work is required to
 run. However, special consideration needs to be made if we wish to launch this
-application on just on computer, since both gossip-cluster nodes will attempt to
+application on just one computer, since both gossip-cluster nodes will attempt to
 listen on the same socket; only one can succeed. One way around this is to use
 minishift, which allows two or more pods to communicate on the same multicast
 socket. Another, of course, is to start another laptop. Instructions for both
@@ -55,7 +55,7 @@ methods follow.
 === Minishift
 
 If you have minishift <<minishift>> installed, the following commands are
-sufficient two start two pods gossipping over multicast:
+sufficient to start two pods gossipping over multicast:
 
 [source, bash]
 ----
@@ -115,6 +115,7 @@ locate one another over multicast. Failure to assign each node a different
 `** Cannot get connection id for node name@host`.
 
 ==== Iex
+
 If both computers have elixir installed, you can run the following command on
 each (setting the value of `--sname` differently for each computer):
 
