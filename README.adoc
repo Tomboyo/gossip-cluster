@@ -52,7 +52,7 @@ minishift, which allows two or more pods to communicate on the same multicast
 socket. Another, of course, is to start another laptop. Instructions for both
 methods follow.
 
-=== Minishift
+=== Using Minishift
 
 If you have minishift <<minishift>> installed, the following commands are
 sufficient to start two pods gossipping over multicast:
@@ -85,7 +85,7 @@ $ oc logs -f gossip-1-6msjw
 ...
 ----
 
-=== Two Computers
+=== Using Two Computers
 
 ==== Podman or Docker
 
