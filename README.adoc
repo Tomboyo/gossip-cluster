@@ -39,7 +39,49 @@ erlang which make this possible:
 
 == Run It
 
-Suppose you have two computers on the same network. On one computer:
+=== Minikube
+
+In this section we will run the application using a minikube cluster and
+kubernetes that hosts two copies of the gossip-cluster application.
+
+By default, kubernetes pods cannot receive external multicast traffic. However,
+we can set the `hostNetwork: true` flag on each pod, which gives pods access to
+the host network. However, we will no longer be able to schedule multiple pods
+on the same host, since they could encounter port collisions. We will start
+minikube with two nodes to ensure both of our pods are scheduled.
+
+Since our docker image is not pushed to a public repository, we need to load it
+into minikube's image cache using `minikube image load <tag>`.
+
+The whole process looks like this:
+
+[source, bash]
+----
+minikube start --nodes=2
+docker build -t gossip .
+minkube image load gossip
+kubectl apply -f kubernetes/
+----
+
+To confirm that our containers are gossipping, inspect their logs:
+
+----
+kubectl logs gossip-a
+kubectl logs gossip-b
+----
+
+When finished, delete the pods with `kubectl delete -f kubernetes/`, and stop
+minikube with `minikube stop`. You can delete the minikube nodes entirely with
+`minikube delete`.
+
+=== Two Computers
+
+In this section we will launch the application on two physical or virtual hosts
+on the same network. If you have two laptops available and minikube isn't an
+option, this is an easy way to demonstrate the gossiping application.
+
+Start the gossip container on one computer with `RELEASE_NAME=a` using docker,
+podman, or any other compatible alternative.
 
 [source,bash]
 ----
@@ -47,8 +89,8 @@ podman build --tag gossip .
 podman run --net=host -e RELEASE_NAME=a gossip
 ----
 
-This will begin running the GossipCluster application from a podman container.
-On the other computer (note the different release name):
+On another computer, again start a container but using a different release name,
+such as `RELEASE_NAME=b`.
 
 [source,bash]
 ----
@@ -56,14 +98,15 @@ podman build --tag gossip .
 podman run --net=host -e RELEASE_NAME=b gossip
 ----
 
-You should see a NODEUP messages within a few seconds on both computers as they
-locate one another over multicast. Failure to assign each node a different
-`RELEASE_NAME` may result in an error like
-`** Cannot get connection id for node name@host`.
+As long as both containers started with different release names you should see
+a NODEUP messages within a few seconds on both computers as they locate one
+another over multicast. You main get an error like `** Cannot get connection id
+for node name@host`. if you forget to change the release names between hosts.
 
-If you do not want to fiddle with podman (or docker) and have elixir installed,
-you can run this on both computers (setting the value of `--sname` differently
-for each computer):
+NOTE: If you do not or cannot use docker, podman, or equivalent, you can
+instead run the gossip application using `iex` assuming you have an elixir
+installation. Run the following command on each host, making sure to set the
+`--sname` parameter differently on each host.
 
 [source,bash]
 ----
