@@ -1,6 +1,7 @@
 = GossipCluster
 
-For Fun And Practice, implement a UDP-multicast clustering mechanism in elixir.
+Goal: Implement a UDP-multicast clustering mechanism in elixir.
+Disclaimer: This repository is for educational purposes only.
 
 Following in the footsteps of bitwalker's _libcluster_ <<libcluster>> library,
 this library uses a gossip (epidemic) protocol <<gossip>> to locate and connect
